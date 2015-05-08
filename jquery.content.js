@@ -1,3 +1,4 @@
+
 var Content = {
     html_templates: [],
     replacement_values: [],
@@ -45,11 +46,11 @@ var Content = {
     parse: function(object, values) {
         var self = this;
         var html = $("#" + object).html();
+
         $(object).css("visibility", "hidden");
         html = self.parse_tags(object, html, values);
         $(object).css("visibility", "show");
         $("#" + object).html(html);
-        $("article > section").show();
     },
 
     find_all_tags: function(str) {
@@ -66,18 +67,20 @@ var Content = {
     parse_values: function(object, values, nodes) {
         var self = this;
 
-        $.each(values, function(key, value) {
-            newNodes = nodes ? nodes.slice() : [];
-            newNodes.push(key);
+        if (typeof(values) === "object") {
+            $.each(values, function(key, value) {
+                newNodes = nodes ? nodes.slice() : [];
+                newNodes.push(key);
 
-            if (typeof(value) === "object") {
-                self.parse_values(object, value, newNodes);
-            } else {
-                //console.log(parse_nodes(newNodes), value);
-                var replacer = object + '.' + self.parse_nodes(newNodes);
-                self.replacement_values[replacer] = value;
-            }
-        });
+                if (typeof(value) === "object" && value !== null) {
+                    self.parse_values(object, value, newNodes);
+                } else {
+                    //console.log(parse_nodes(newNodes), value);
+                    var replacer = object + '.' + self.parse_nodes(newNodes);
+                    self.replacement_values[replacer] = value;
+                }
+            });
+        }
     },
     parse_nodes: function(nodes) {
         var output = "";
@@ -93,9 +96,7 @@ var Content = {
     parse_tags: function(object, input, values) {
         var self = this;
         
-       
         self.parse_values(object, values);
-        
 
         $.each(self.find_all_tags(input), function(i, tag) {
             var split = tag.split("|");
