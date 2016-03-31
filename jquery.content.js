@@ -1,4 +1,3 @@
-
 var Content = {
     html_templates: [],
     replacement_values: [],
@@ -10,49 +9,158 @@ var Content = {
             }
         })
     },
-
-    loop: function(object, records) {
+    loop: function(object, records, callback) {
         var self = this;
-        
-        if (!self.html_template[object]) {
-            self.html_template[object] = $('[data-content-loop=' + object + ']').html();
+
+        if (!self.html_templates[object]) {
+            self.html_templates[object] = $('[data-content-loop=' + object + ']').html();
         }
 
+        $('[data-content-loop=' + object + ']').html(self.html_templates[object]);
+
         if (records.length === 0) {
-            $('[data-content-loop=' + object + ']').hide();
+            $('[data-content-loop=' + object + ']').css("visibility", "hidden").hide();
+            $('[data-content-loop-notfound=' + object + ']').show();
         } else {
 
             $('[data-content-loop=' + object + ']').each(function() {
                 var loop_object = $(this);
+                var object = $(this).data("content-loop");
                 $(this).empty();
 
                 $.each(records, function(key, values) {
-                    var html = self.html_template[object];
+                    var html = self.html_templates[object];
 
-                    values.count = key+1;
-                    html = self.parse_tags(object, html, values);
-                    //console.log(html_template, object, html, values);
+                    values.count = key + 1;
 
-                    loop_object.append(html).show(0);
-                })
-            }).css("visibility", "visible");
+                    self.parse_tags(object, html, values, function() {
+                        var output = html;
+                        $.each(self.find_all_tags(html), function(i, tag) {
+                            var split = tag.split("|");
+                            var key = split[0];
+
+                            if (split[1]) {
+                                var action = split[1].toString().trim();
+                                //console.log(action);
+                                var value = window[action](self.replacement_values[key]);
+                            } else {
+                                var value = self.replacement_values[key];
+                            }
+                            //console.log("Tags", tag, value);
+
+                            var replacer = '{' + tag + '}';
+                            output = output.replaceAll(replacer, value);
+                        });
+                        loop_object.append(output);
+                    });
+
+                    //console.log(html_templates, object, html, values);
+                });
+
+                //console.log(object);
+                $('[data-content-loop-notfound=' + object + ']').hide();
+                $(this).css("visibility", "visible").show();
+            });
+
+            if (typeof callback === "function") {
+                setTimeout(function() {
+                    callback();
+                }, 1000);
+            }
+
+        }
+
+        setTimeout(function() {
+            $('img').each(function() {
+                $(this).load(function() {
+                    if (!this.complete || typeof this.naturalWidth == "undefined" || this.naturalWidth == 0) {
+                        // image was broken, replace with your new image
+                        this.src = '/_assets/images/noimage.gif';
+                    }
+                });
+            });
+        }, 1000);
+
+    },
+    loop_add: function(object, records, callback) {
+        var self = this;
+
+        $('[data-content-loop=' + object + ']').each(function() {
+            var loop_object = $(this);
+            var object = $(this).data("content-loop");
+
+            $.each(records, function(key, values) {
+                var html = self.html_templates[object];
+
+                values.count = key + 1;
+
+                self.parse_tags(object, html, values, function() {
+                    var output = html;
+                    $.each(self.find_all_tags(html), function(i, tag) {
+                        var split = tag.split("|");
+                        var key = split[0];
+
+                        if (split[1]) {
+                            var action = split[1].toString().trim();
+                            //console.log(action);
+                            var value = window[action](self.replacement_values[key]);
+                        } else {
+                            var value = self.replacement_values[key];
+                        }
+                        //console.log("Tags", tag, value);
+
+                        var replacer = '{' + tag + '}';
+                        output = output.replaceAll(replacer, value);
+                    });
+                    loop_object.append(output);
+                });
+
+                //console.log(html_templates, object, html, values);
+            });
+
+        });
+
+        if (typeof callback === "function") {
+            setTimeout(function() {
+                callback();
+            }, 1000);
         }
     },
     reload: function(object, records) {
         var self = this;
-        $('[data-content-loop=' + object + ']').html(self.html_template[object]);
+        $('[data-content-loop=' + object + ']').html(self.html_templates[object]);
         self.loop(object, records);
     },
     parse: function(object, values) {
         var self = this;
         var html = $("#" + object).html();
+        self.parse_tags(object, html, values, function() {
+            $.each(self.find_all_tags(html), function(i, tag) {
+                var split = tag.split("|");
+                var key = split[0];
 
-        $(object).css("visibility", "hidden");
-        html = self.parse_tags(object, html, values);
-        $(object).css("visibility", "show");
-        $("#" + object).html(html);
+                if (split[1]) {
+                    var action = split[1].toString().trim();
+                    //console.log(action);
+                    var value = window[action](self.replacement_values[key]);
+                } else {
+                    var value = self.replacement_values[key];
+                }
+                //console.log("Tags", tag, value);
+
+                var replacer = '{' + tag + '}';
+                html = html.replaceAll(replacer, value);
+            });
+            $("#" + object).html(html);
+            $("#" + object)
+                .css("visibility", "visible")
+                .css("display", "block");
+        });
+
     },
-
+    hide: function(object) {
+        $("#" + object).css("visibility", "hidden");
+    },
     find_all_tags: function(str) {
         // "\{.*?\}"
         var results = [],
@@ -67,20 +175,22 @@ var Content = {
     parse_values: function(object, values, nodes) {
         var self = this;
 
-        if (typeof(values) === "object") {
-            $.each(values, function(key, value) {
-                newNodes = nodes ? nodes.slice() : [];
-                newNodes.push(key);
+        //console.log(object, typeof(values), values, Object.keys(values).length);
 
-                if (typeof(value) === "object" && value !== null) {
-                    self.parse_values(object, value, newNodes);
-                } else {
-                    //console.log(parse_nodes(newNodes), value);
-                    var replacer = object + '.' + self.parse_nodes(newNodes);
-                    self.replacement_values[replacer] = value;
-                }
-            });
-        }
+        $.each(values, function(key, value) {
+            newNodes = nodes ? nodes.slice() : [];
+            newNodes.push(key);
+
+            value = (value === null || value === "") ? "&nbsp;" : value;
+
+            if (typeof(value) === "object") {
+                self.parse_values(object, value, newNodes);
+            } else {
+                //console.log(object + '.' + parse_nodes(newNodes), value);
+                var replacer = object + '.' + self.parse_nodes(newNodes);
+                self.replacement_values[replacer] = value;
+            }
+        });
     },
     parse_nodes: function(nodes) {
         var output = "";
@@ -93,34 +203,15 @@ var Content = {
         })
         return output;
     },
-    parse_tags: function(object, input, values) {
+    parse_tags: function(object, input, values, callback) {
         var self = this;
-        
         self.parse_values(object, values);
-
-        $.each(self.find_all_tags(input), function(i, tag) {
-            var split = tag.split("|");
-            var key = split[0];
-
-            if (split[1]) {
-                var action = split[1].toString().trim();
-                //console.log(action);
-                var value = window[action](self.replacement_values[key]);
-            } else {
-                var value = self.replacement_values[key];
-            }
-            //console.log("Tags", tag, value);
-
-            var replacer = '{' + tag + '}';
-            input = input.replaceAll(replacer, value);
-        });
-
-        return input;
+        callback();
     }
 }
 
-$(window).bind('hashchange', function() {   
-    Content.html_template = [];
+$(window).bind('hashchange', function() {
+    Content.html_templates = [];
 }).load(function() {
-    Content.html_template = [];
+    Content.html_templates = [];
 });

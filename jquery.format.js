@@ -1,5 +1,8 @@
 var Format = {
 	slug: function(text) {
+
+		text = (text) ? text : "";
+
 	    return text
 	        .toLowerCase()
 	        .replace(/ /g,'-')
@@ -7,6 +10,14 @@ var Format = {
 	        .replace(/--/g,'-')
 	        .replace(/[^\w-]+/g,'')
 	        ;
+	},
+	unslug: function(text) {
+
+		text = (text) ? text : "";
+		text = text.replace(/-/g, " ")
+
+		
+		return text.toCamelCase();
 	}
 }
 
@@ -19,11 +30,15 @@ function FORMAT_lowercase(text) {
 }
 
 
+function FORMAT_nl2br(text) {
+	if (!text) return "";
+
+	return text.replace(/\r?\n/g, '<br />');
+}
 
 function FORMAT_slug(text) {
 	return Format.slug(text);
 }
-
 
 function FORMAT_archive_date_slug(date) {
 	date = moment(date).format("YYYY-MM");
@@ -50,9 +65,15 @@ function FORMAT_parse_links(text) {
 
 // ** DATE AND TIME FORMATS ** //
 
-
 function FORMAT_from_ago(date){
-	timestamp = new Date(Date.parse(date.replace(/( +)/, ' UTC$1')));
+
+
+	if (date) {
+		return moment.unix(date).fromNow();
+		timestamp = new Date(Date.parse(date.replace(/( +)/, ' UTC$1')));
+	} else {
+		timestamp = new Date();
+	}
 	return moment(timestamp).fromNow();
 }
 
@@ -62,7 +83,7 @@ function FORMAT_timestamp(date) {
 }
 
 function FORMAT_date_time(date) {
-	date = moment.unix(date).format("MMMM DD, YYYY H:mma");
+	date = moment.unix(date).format("MMMM DD, YYYY @ H:mma");
 	return date;
 }
 
@@ -80,7 +101,6 @@ function FORMAT_year(date) {
 	date = moment(date).format("YYYY");
 	return date;
 }
-
 
 function FORMAT_event_date_short(date) {
 	date = moment(date).format("MMM Do YYYY");
