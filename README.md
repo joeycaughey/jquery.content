@@ -5,6 +5,8 @@ OVERVIEW
 ----------------------------------------------------
 jQuery.content is a package for client side template parsing and formatting as an alternative to something like AngularJS (https://angularjs.org/) or Handlebars (http://handlebarsjs.com/).
 
+The benefits being there is no middleware or meta language/scripts separating the feature.  It's just Javascript and HTML.
+
 
 ----------------------------------------------------
 Parsing through HTML object
