@@ -133,30 +133,32 @@ var Content = {
     },
     parse: function(object, values) {
         var self = this;
-        var html = $("#" + object).html();
-        self.parse_tags(object, html, values, function() {
-            $.each(self.find_all_tags(html), function(i, tag) {
-                var split = tag.split("|");
-                var key = split[0];
 
-                if (split[1]) {
-                    var action = split[1].toString().trim();
-                    //console.log(action);
-                    var value = window[action](self.replacement_values[key]);
-                } else {
-                    var value = self.replacement_values[key];
-                }
-                //console.log("Tags", tag, value);
-
-                var replacer = '{' + tag + '}';
-                html = html.replaceAll(replacer, value);
+        $("[data-content-parse=" + object+"]").each(function(){
+            var html = $(this).html();
+            self.parse_tags(object, html, values, function() {
+                $.each(self.find_all_tags(html), function(i, tag) {
+                    var split = tag.split("|");
+                    var key = split[0];
+    
+                    if (split[1]) {
+                        var action = split[1].toString().trim();
+                        //console.log(action);
+                        var value = window[action](self.replacement_values[key]);
+                    } else {
+                        var value = self.replacement_values[key];
+                    }
+                    //console.log("Tags", tag, value);
+    
+                    var replacer = '{' + tag + '}';
+                    html = html.replaceAll(replacer, value);
+                });
+                $(this).html(html);
+                $(this)
+                    .css("visibility", "visible")
+                    .css("display", "block");
             });
-            $("#" + object).html(html);
-            $("#" + object)
-                .css("visibility", "visible")
-                .css("display", "block");
         });
-
     },
     hide: function(object) {
         $("#" + object).css("visibility", "hidden");
