@@ -3,7 +3,7 @@
 ----------------------------------------------------
 OVERVIEW
 ----------------------------------------------------
-jQuery.content is a package for client side template parsing and formatting as an alternative to something like AngularJS (https://angularjs.org/) or Handlebars (http://handlebarsjs.com/)
+jQuery.content is a package for client side template parsing and formatting as an alternative to something like AngularJS (https://angularjs.org/) or Handlebars (http://handlebarsjs.com/).
 
 
 ----------------------------------------------------
