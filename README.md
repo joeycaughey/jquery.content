@@ -100,7 +100,8 @@ function FORMAT_parse_links(text)
 
 You can add your own functions to this through javascript.  I would recommend keeping theses all in one place but they can be placed anywhere in your application if they are meant to only be used in our spot. 
 
+```
 Content.format(“FORMAT_name”, function(input) {
 
 });
-
+```
