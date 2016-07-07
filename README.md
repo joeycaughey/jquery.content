@@ -66,3 +66,39 @@ Content.loop("template-name", variables_object);
 ```
 
 The Content.loop function will loop through for all occurences of "template-name" defined with a data-content-loop tag and replace with the coresponding array data values.
+
+
+----------------------------------------------------
+Content Formatting and Manipulation
+----------------------------------------------------
+
+The jquery.content library allows client side content formatting and content manipulation through passing the tag through a bar like so:
+
+{variable|FORMAT_date}
+
+The current available functions in jquery.format.js are:
+(please suggest any standard ones you think should be added.
+
+function FORMAT_slug(text)
+function FORMAT_youtube_image(url) 
+function FORMAT_lowercase(text) 
+function FORMAT_from_ago(date) 
+function FORMAT_timestamp(date)
+function FORMAT_archive_date(date) 
+function FORMAT_month(date)
+function FORMAT_year(date)
+function FORMAT_archive_date_slug(date)
+function FORMAT_truncate_event_title(title)
+function FORMAT_truncate_event_details(content)
+function FORMAT_truncate_news_details(content)
+function FORMAT_event_date_short(date)
+function FORMAT_event_date_long(date)
+function FORMAT_time(time)
+function FORMAT_parse_links(text)
+
+You can add your own functions to this through javascript.  I would recommend keeping theses all in one place but they can be placed anywhere in your application if they are meant to only be used in our spot. 
+
+Content.format(“FORMAT_name”, function(input) {
+
+});
+
