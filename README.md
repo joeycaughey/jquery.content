@@ -12,7 +12,7 @@ The benefits being there is no middleware or meta language/scripts separating th
 Parsing through HTML object
 ----------------------------------------------------
 
-```
+```javascript
 var user = {
   name: "Testing Name",
   email: "testing@testing.com",
@@ -36,7 +36,7 @@ The Content.parse function will look for all occurences of "template-name" defin
 Looping through HTML object
 ----------------------------------------------------
 
-```
+```javascript
 var user = [
   {
     name: "Testing Name",
@@ -79,7 +79,7 @@ The jquery.content library allows client side content formatting and content man
 The current available functions in jquery.format.js are:
 (please suggest any standard ones you think should be added.
 
-```
+```javascript
 function FORMAT_slug(text)
 function FORMAT_youtube_image(url) 
 function FORMAT_lowercase(text) 
@@ -100,7 +100,7 @@ function FORMAT_parse_links(text)
 
 You can add your own functions to this through javascript.  I would recommend keeping theses all in one place but they can be placed anywhere in your application if they are meant to only be used in our spot. 
 
-```
+```javascript
 Content.format(“FORMAT_name”, function(input) {
 
 });
