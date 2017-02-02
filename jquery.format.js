@@ -69,7 +69,7 @@ function FORMAT_from_ago(date){
 
 
 	if (date) {
-		return moment.unix(date).fromNow();
+		//return moment.unix(date).fromNow();
 		timestamp = new Date(Date.parse(date.replace(/( +)/, ' UTC$1')));
 	} else {
 		timestamp = new Date();

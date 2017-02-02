@@ -1,18 +1,63 @@
 var Content = {
-    html_templates: [],
+    html_templates: {},
     replacement_values: [],
     init: function(options) {
+        var self = this;
         $("img").each(function() {
             if (typeof $(this).data("src") != "undefined") {
                 var src = $(this).data("src");
                 $(this).attr("src", src.replace(":uploads_folder:", API.get_uploads_folder()));
             }
+        });
+
+        $("[data-content-parse]").each(function(){
+            var object = $(this).data("content-parse");
+            Content.html_templates[object] = $(this).html();
         })
+    },
+    parse: function(object, values) {
+        var self = this;
+        var html = $("[data-content-parse="+object+"]").html();
+
+        if (typeof self.html_templates[object] === "undefined") {
+            self.html_templates[object] = html;
+            console.log("HTML????", html, typeof self.html_templates[object], self.html_templates[object])
+        }
+
+        html = self.html_templates[object];
+
+        $('[data-content-parse='+object+']').html(html);
+
+        console.log(object, values, html);
+
+        self.parse_tags(object, html, values, function() {
+            $.each(self.find_all_tags(html), function(i, tag) {
+                var split = tag.split("|");
+                var key = split[0];
+
+                if (split[1]) {
+                    var action = split[1].toString().trim();
+                    //console.log(action);
+                    var value = window[action](self.replacement_values[key]);
+                } else {
+                    var value = self.replacement_values[key];
+                }
+                //console.log("Tags", tag, value);
+
+                var replacer = '{' + tag + '}';
+                html = html.replaceAll(replacer, value);
+            });
+            $("[data-content-parse=" + object + "]").html(html);
+            $("[data-content-parse=" + object + "]")
+                .css("visibility", "visible")
+                .css("display", "block");
+        });
+
     },
     loop: function(object, records, callback) {
         var self = this;
 
-        if (!self.html_templates[object]) {
+        if (typeof self.html_templates[object] === "undefined") {
             self.html_templates[object] = $('[data-content-loop=' + object + ']').html();
         }
 
@@ -131,33 +176,7 @@ var Content = {
         $('[data-content-loop=' + object + ']').html(self.html_templates[object]);
         self.loop(object, records);
     },
-    parse: function(object, values) {
-        var self = this;
-        var html = $("#" + object).html();
-        self.parse_tags(object, html, values, function() {
-            $.each(self.find_all_tags(html), function(i, tag) {
-                var split = tag.split("|");
-                var key = split[0];
-
-                if (split[1]) {
-                    var action = split[1].toString().trim();
-                    //console.log(action);
-                    var value = window[action](self.replacement_values[key]);
-                } else {
-                    var value = self.replacement_values[key];
-                }
-                //console.log("Tags", tag, value);
-
-                var replacer = '{' + tag + '}';
-                html = html.replaceAll(replacer, value);
-            });
-            $("#" + object).html(html);
-            $("#" + object)
-                .css("visibility", "visible")
-                .css("display", "block");
-        });
-
-    },
+    
     hide: function(object) {
         $("#" + object).css("visibility", "hidden");
     },
@@ -209,9 +228,10 @@ var Content = {
         callback();
     }
 }
+Content.init();
 
 $(window).bind('hashchange', function() {
-    Content.html_templates = [];
+    //Content.html_templates = [];
 }).load(function() {
-    Content.html_templates = [];
+    //Content.html_templates = [];
 });
