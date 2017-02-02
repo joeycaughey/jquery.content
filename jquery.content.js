@@ -21,14 +21,11 @@ var Content = {
 
         if (typeof self.html_templates[object] === "undefined") {
             self.html_templates[object] = html;
-            console.log("HTML????", html, typeof self.html_templates[object], self.html_templates[object])
         }
 
         html = self.html_templates[object];
 
         $('[data-content-parse='+object+']').html(html);
-
-        console.log(object, values, html);
 
         self.parse_tags(object, html, values, function() {
             $.each(self.find_all_tags(html), function(i, tag) {
