@@ -176,7 +176,6 @@ var Content = {
         $('[data-content-loop=' + object + ']').html(self.html_templates[object]);
         self.loop(object, records);
     },
-    
     hide: function(object) {
         $("#" + object).css("visibility", "hidden");
     },
