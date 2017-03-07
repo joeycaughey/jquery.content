@@ -84,7 +84,16 @@ var Content = {
                             if (split[1]) {
                                 var action = split[1].toString().trim();
                                 //console.log(action);
-                                var value = window[action](self.replacement_values[key]);
+
+                                if (typeof  window[action] === "function") {
+                                    var value = window[action](self.replacement_values[key]);
+                                } else {
+                                    if (!self.replacement_values[key] || self.replacement_values[key] === "&nbsp;") {
+                                        var value = eval(action);
+                                    } else {
+                                        var value = self.replacement_values[key];
+                                    }
+                                }
                             } else {
                                 var value = self.replacement_values[key];
                             }
@@ -196,7 +205,7 @@ var Content = {
             newNodes = nodes ? nodes.slice() : [];
             newNodes.push(key);
 
-            value = (value === null || value === "") ? "&nbsp;" : value;
+            value = (value === null || value === "" || value === "NULL") ? "&nbsp;" : value;
 
             if (typeof(value) === "object") {
                 self.parse_values(object, value, newNodes);
